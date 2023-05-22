@@ -11,4 +11,7 @@ public interface AvailabilityRepo extends JpaRepository<Availability, Integer> {
 
     @Query(value = "select u.email  from user u join availability a on a.user_id=u.id where a.attendance='Absent'",nativeQuery = true)
     List<String> findAllAbsentUser();
+
+//    @Query(value = "",nativeQuery = true)
+//    void countAllFoodPrefs();
 }

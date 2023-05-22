@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,8 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/officeLunch")
 public class UserController {
+
+    private String sessionId = null;
 
     @Autowired
     UserRepositories userRepositories;
@@ -41,7 +44,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user, HttpSession session) {
+    public ResponseEntity<?> loginUser(@RequestBody User user, HttpSession session, Model model) {
+        sessionId = session.getId();
         if (user.getUsername() == null || user.getPassword() == null) {
             return new ResponseEntity<>("Username or Password is Empty", HttpStatus.EXPECTATION_FAILED);
         }
@@ -53,13 +57,16 @@ public class UserController {
             return new ResponseEntity<>("username or password is invalid", HttpStatus.BAD_GATEWAY);
         } else {
             session.setAttribute("username", user.getUsername());
+            model.addAttribute("sessionId",sessionId);
             return new ResponseEntity<>("User login Successfully", HttpStatus.OK);
         }
     }
 
 
     @PostMapping("/enroll")
-    public ResponseEntity<?> enrollForFood(@RequestBody Availability availability, HttpServletRequest request) {
+    public ResponseEntity<?> enrollForFood(@RequestBody Availability availability, HttpServletRequest request,Model model) {
+        model.addAttribute("sessionId",sessionId);
+        System.out.println(sessionId);
         HttpSession session = request.getSession();
         String name = (String) session.getAttribute("username");
         if (name!=null && name.equals(availability.getUsername())) {

@@ -29,4 +29,10 @@ public class AvailabilityServiceImpl implements AvailabilityService {
       availability.setId(userId);
       return availabilityRepo.save(availability);
     }
+
+    @Override
+    public String totalPresent() {
+//        availabilityRepo.countAllFoodPrefs();
+        return null;
+    }
 }
