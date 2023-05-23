@@ -21,9 +21,6 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/officeLunch")
 public class UserController {
-
-    private String sessionId = null;
-
     @Autowired
     UserRepositories userRepositories;
     @Autowired
@@ -44,8 +41,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user, HttpSession session, Model model) {
-        sessionId = session.getId();
+    public ResponseEntity<?> loginUser(@RequestBody User user) {
+
         if (user.getUsername() == null || user.getPassword() == null) {
             return new ResponseEntity<>("Username or Password is Empty", HttpStatus.EXPECTATION_FAILED);
         }
@@ -56,20 +53,15 @@ public class UserController {
         if (userData == null) {
             return new ResponseEntity<>("username or password is invalid", HttpStatus.BAD_GATEWAY);
         } else {
-            session.setAttribute("username", user.getUsername());
-            model.addAttribute("sessionId",sessionId);
             return new ResponseEntity<>("User login Successfully", HttpStatus.OK);
         }
     }
 
 
     @PostMapping("/enroll")
-    public ResponseEntity<?> enrollForFood(@RequestBody Availability availability, HttpServletRequest request,Model model) {
-        model.addAttribute("sessionId",sessionId);
-        System.out.println(sessionId);
-        HttpSession session = request.getSession();
-        String name = (String) session.getAttribute("username");
-        if (name!=null && name.equals(availability.getUsername())) {
+    public ResponseEntity<?> enrollForFood(@RequestBody Availability availability) {
+       String name = availability.getUsername();
+        if (name!=null) {
             User user = userRepositories.findByUsername(name);
             availability.setUser(user);
             availability.setAttendance("Present");
@@ -86,15 +78,13 @@ public class UserController {
 
 
     @PostMapping("/pwReset")
-    public ResponseEntity<?> resetPassword(@RequestBody User user,HttpServletRequest request) {
+    public ResponseEntity<?> resetPassword(@RequestBody User user) {
         return new ResponseEntity<>(userService.resetUserPassword(user), HttpStatus.OK);
 
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        session.invalidate();
+    public String logout() {
         return "user logged out successfully";
     }
 
